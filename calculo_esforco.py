@@ -223,68 +223,70 @@ def widget_cabo_bt(prefixo, label_cabecalho):
         tracao = interpolar(TRACAO_CAZ_CAW[cabo], vao)
 
     elif tipo == "Convencional BT":
-        st.markdown("##### Fases")
 
-        c1, c2 = st.columns(2)
+    # ── FASES ─────────────────────────────
+    st.markdown("##### Fases")
 
-        qtd_fase = c1.number_input(
-            "Qtd. fases",
-            1, 6, 3,
-            key=f"{prefixo}_qtd_fase"
-        )
+    c1, c2 = st.columns(2)
 
-        cabo_fase = c2.selectbox(
-            "Cabo das fases",
+    qtd_fase = c1.number_input(
+        "Qtd. fases",
+        1, 6, 3,
+        key=f"{prefixo}_qtd_fase"
+    )
+
+    cabo_fase = c2.selectbox(
+        "Cabo das fases",
+        list(TRACAO_CABO.keys()),
+        key=f"{prefixo}_cabo_fase"
+    )
+
+    tracao_fase = float(TRACAO_CABO.get(cabo_fase, 0)) * qtd_fase
+
+    # ── NEUTRO ────────────────────────────
+    st.markdown("##### Neutro")
+
+    usar_neutro = st.checkbox(
+        "Possui neutro",
+        value=True,
+        key=f"{prefixo}_usa_neutro"
+    )
+
+    tracao_neutro = 0
+
+    if usar_neutro:
+
+        cabo_neutro = st.selectbox(
+            "Cabo do neutro",
             list(TRACAO_CABO.keys()),
-            key=f"{prefixo}_cabo_fase"
+            key=f"{prefixo}_cabo_neutro"
         )
 
-        tracao_fase = float(TRACAO_CABO.get(cabo_fase, 0)) * qtd_fase
+        tracao_neutro = float(TRACAO_CABO.get(cabo_neutro, 0))
 
-        st.markdown("##### Neutro")
+    # ── CONTROLE ──────────────────────────
+    st.markdown("##### Controle")
 
-        usar_neutro = st.checkbox(
-            "Possui neutro",
-            value=True,
-            key=f"{prefixo}_usa_neutro"
+    usar_controle = st.checkbox(
+        "Possui controle",
+        value=False,
+        key=f"{prefixo}_usa_controle"
+    )
+
+    tracao_controle = 0
+
+    if usar_controle:
+
+        cabo_controle = st.selectbox(
+            "Cabo do controle",
+            list(TRACAO_CABO.keys()),
+            key=f"{prefixo}_cabo_controle"
         )
 
-        tracao_neutro = 0
+        tracao_controle = float(TRACAO_CABO.get(cabo_controle, 0))
 
-        if usar_neutro:
-            c3, c4 = st.columns(2)
-
-            cabo_neutro = c4.selectbox(
-                "Cabo do neutro",
-                list(TRACAO_CABO.keys()),
-                key=f"{prefixo}_cabo_neutro"
-            )
-
-            tracao_neutro = float(TRACAO_CABO.get(cabo_neutro, 0))
-        st.markdown("##### Controle")
-
-        usar_controle = st.checkbox(
-            "Possui controle",
-            value=False,
-            key=f"{prefixo}_usa_controle"
-        )
-
-        tracao_controle = 0
-
-        if usar_controle:
-            c5, c6 = st.columns(2)
-
-            cabo_controle = c6.selectbox(
-                "Cabo do controle",
-                list(TRACAO_CABO.keys()),
-                key=f"{prefixo}_cabo_controle"
-            )
-
-            tracao_controle = float(TRACAO_CABO.get(cabo_controle, 0))
-
-        tracao = tracao_fase + tracao_neutro + tracao_controle
-
-    return tracao
+    # ── TOTAL ─────────────────────────────
+    tracao = tracao_fase + tracao_neutro + tracao_controle
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PAINEL COMPLETO DE UM NÍVEL

@@ -223,44 +223,47 @@ def widget_cabo_bt(prefixo, label_cabecalho):
         tracao = interpolar(TRACAO_CAZ_CAW[cabo], vao)
 
     elif tipo == "Convencional BT":
-
+        
         st.markdown("##### Fases")
-    c1, c2 = st.columns(2)
 
-    qtd_fase = c1.number_input(
-        "Qtd. cabos fase",
-        1, 10, 3,
-        key=f"{prefixo}_qtd_fase"
-    )
+        c1, c2 = st.columns(2)
 
-    cabo_fase = c2.selectbox(
-        "Cabo fase",
-        list(TRACAO_CABO.keys()),
-        key=f"{prefixo}_fase"
-    )
+        qtd_fase = c1.number_input(
+            "Qtd. cabos fase",
+            1, 10, 3,
+            key=f"{prefixo}_qtd_fase"
+        )
 
-    st.markdown("##### Neutro")
+        cabo_fase = c2.selectbox(
+            "Cabo fase",
+            list(TRACAO_CABO.keys()),
+            key=f"{prefixo}_fase"
+        )
 
-    cabo_neutro = st.selectbox(
-        "Cabo neutro",
-        list(TRACAO_CABO.keys()),
-        key=f"{prefixo}_neutro"
-    )
+        st.markdown("##### Neutro")
 
-    st.markdown("##### Controle")
+        cabo_neutro = st.selectbox(
+            "Cabo neutro",
+            list(TRACAO_CABO.keys()),
+            key=f"{prefixo}_neutro"
+        )
 
-    cabo_controle = st.selectbox(
-        "Cabo controle",
-        list(TRACAO_CABO.keys()),
-        key=f"{prefixo}_controle"
-    )
+        st.markdown("##### Controle")
 
-    # SOMA TOTAL
-    tracao = (
-        float(TRACAO_CABO.get(cabo_fase, 0)) * qtd_fase
-        + float(TRACAO_CABO.get(cabo_neutro, 0))
-        + float(TRACAO_CABO.get(cabo_controle, 0))
-    )
+        cabo_controle = st.selectbox(
+            "Cabo controle",
+            list(TRACAO_CABO.keys()),
+            key=f"{prefixo}_controle"
+        )
+
+        tracao = (
+            float(TRACAO_CABO.get(cabo_fase, 0)) * qtd_fase
+            + float(TRACAO_CABO.get(cabo_neutro, 0))
+            + float(TRACAO_CABO.get(cabo_controle, 0))
+        )
+
+    st.caption(f"Tração: **{tracao:.0f} daN**")
+    return float(tracao)
 # ─────────────────────────────────────────────────────────────────────────────
 # PAINEL COMPLETO DE UM NÍVEL
 # ─────────────────────────────────────────────────────────────────────────────

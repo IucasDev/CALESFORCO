@@ -2,67 +2,35 @@ import streamlit as st
 import math
 
 st.set_page_config(page_title="Cálculo de Esforços Mecânicos", page_icon="🏗️", layout="wide")
-st.markdown("""
-<style>
-
-/* Mãozinha em selects */
-div[data-baseweb="select"] > div {
-    cursor: pointer !important;
-}
-
-/* Mãozinha em checkbox */
-.stCheckbox {
-    cursor: pointer !important;
-}
-
-/* Mãozinha em radio */
-.stRadio {
-    cursor: pointer !important;
-}
-
-/* Mãozinha em slider */
-.stSlider {
-    cursor: pointer !important;
-}
-
-/* Mãozinha nos botões */
-button {
-    cursor: pointer !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
 
 st.title("🏗️ Cálculo de Esforços Mecânicos em Postes")
-st.caption("Conforme DIS-NOR-012 Rev.08 e DIS-NOR-014 Rev.2024 — Electro")
+st.caption("Conforme DIS-NOR-012 Rev.08 e DIS-NOR-014 Rev.2024 — Elektro")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ALTURA FINAL (AF) — valores fixos conforme DIS-NOR-012 item 6.13.4
-# AF = altura transferida a 0,10 m do topo
-# Exemplos da norma: 9 m → 7,4 m | 11 m → 9,2 m | 12 m → 10,1 m
-# Para os demais: AF = altura - 0,20 - (altura×10% + 0,60)
+# ALTURA FINAL (AF) — DIS-NOR-014 item 6.9.7
+# Esforços transferidos para 0,20 m do topo: AF = altura − 0,20 m
 # ─────────────────────────────────────────────────────────────────────────────
 ALTURA_FINAL = {
-    9:  7.4,
-    10: 8.3,
-    11: 9.2,
-    12: 10.1,
-    14: 11.8,
-    16: 13.6,
+    9:  8.80,
+    10: 9.80,
+    11: 10.80,
+    12: 11.80,
+    14: 13.80,
+    16: 15.80,
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# TABELAS DE DADOS — Condutores e trações (daN)
+# TABELAS DE DADOS
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Condutores nus (Tabela 14 — DIS-NOR-012)
+# Condutores nus — Tabela 14 DIS-NOR-012
 TRACAO_NUS = {
     # Alumínio sem alma de aço (CA)
-    "4 CA":     60,
-    "2 CA":     86,
-    "2/0 CA":   173,
-    "4/0 CA":   274,
-    "336,4 CA": 436,
+    "4 CA":       60,
+    "2 CA":       86,
+    "2/0 CA":    173,
+    "4/0 CA":    274,
+    "336,4 CA":  436,
     # Alumínio com alma de aço (CAA)
     "4 CAA":      75,
     "1/0 CAA":   173,
@@ -80,7 +48,17 @@ TRACAO_NUS = {
     "465,4 MCM CAL":  427,
 }
 
-# Cabos convencionais AT/MT (planilha original)
+# Cabos multiplexados BT — Quadro 5 DIS-NOR-014 (coluna Elektro)
+# Tração de projeto = tração de ruptura (usada para cálculo mecânico)
+TRACAO_MULTIPLEX = {
+    "35833 — 1x1x25+25":   778,
+    "35834 — 3x1x35+35":  1092,
+    "30121 — 3x1x50+50":  1572,
+    "30101 — 3x1x70+50":  1572,
+    "30120 — 3x1x120+70": 1991,
+}
+
+# Cabos AT/MT convencionais isolados
 TRACAO_CABO = {
     "A02": 86,  "A04": 60,  "A20": 173, "A33": 436, "A40": 274,
     "A47": 619, "C02": 171, "C04": 107, "C06": 60,  "C20": 342,
@@ -90,7 +68,7 @@ TRACAO_CABO = {
     "A50P": 245, "A70P": 268, "A120P": 317, "A180P": 359,
 }
 
-# Pré-reunido / multiplexado BT — tração varia com vão (m)
+# Pré-reunido — tração varia com vão
 TRACAO_PRE_REUNIDO = {
     "PB35":  {5:4,  10:14, 15:32, 20:56,  25:88,  30:127, 35:172, 40:225},
     "PB50":  {5:6,  10:24, 15:51, 20:91,  25:142, 30:204, 35:278, 40:363},
@@ -99,7 +77,7 @@ TRACAO_PRE_REUNIDO = {
 }
 VOS_PR = [5, 10, 15, 20, 25, 30, 35, 40]
 
-# CAZ / CAW — tração varia com vão (m)
+# CAZ / CAW
 TRACAO_CAZ_CAW = {
     "CAZ 3,09":   {50:229,100:256,150:263,200:282,300:318,400:349,500:376,600:400},
     "CAZ 3x2,25": {50:357,100:395,150:406,200:436,300:491,400:540,500:580,600:615},
@@ -109,7 +87,7 @@ TRACAO_CAZ_CAW = {
 }
 VOS_CAZ = [50, 100, 150, 200, 300, 400, 500, 600]
 
-# Rede Protegida — cabo unitário
+# Rede Protegida
 TRACAO_PROTEGIDA = {
     "URBANO15KVA50P":240,"URBANO15KVA70P":321,"URBANO15KVA120P":510,
     "RURAL15KVA50P":334,"RURAL15KVA70P":407,"RURAL15KVA120P":584,
@@ -118,7 +96,7 @@ TRACAO_PROTEGIDA = {
     "URBANO15KVA185P":400,"RURAL15KVA185P":400,
 }
 
-# Rede Compacta — valores fixos
+# Rede Compacta — fixo
 TRACAO_COMPACTA_FIXA = {
     "RURALS04":325,"RURALS02":454,"RURALS20":763,"RURALS40":1212,
     "RURALS33":1517,"RURALC25":315,"RURALC35":454,"RURALC70":864,
@@ -129,7 +107,7 @@ TRACAO_COMPACTA_FIXA = {
     "URBANOC35":155,"URBANOC70":296,"URBANOC120":598,
 }
 
-# Rede Compacta — tração varia com vão
+# Rede Compacta — vão variável
 TABELA_COMPACTA = {
     "URBANO15KVA35P":{15:342,20:349,25:355,30:365,35:386,40:405,45:422,50:438,55:451,60:464},
     "URBANO15KVA70P":{15:366,20:383,25:400,30:417,35:444,40:468,45:490,50:511,55:529,60:546},
@@ -165,41 +143,21 @@ def get_tracao_compacta(local, tensao, cabo, vao):
         return interpolar(TABELA_COMPACTA[key], vao)
     return float(TRACAO_COMPACTA_FIXA.get(f"{local}{cabo}", 0))
 
-def calcular_resultante_norma(f1, f2, alpha_deg):
-    """
-    Fórmula analítica conforme DIS-NOR-012 item 6.13.6:
-      R = sqrt(F1² + F2² + 2·F1·F2·cos β)
-      β = 180° - α  (α = ângulo de deflexão entre os dois cabos)
-    Quando F1 == F2 usa a simplificada 6.13.7: R = 2·F·sen(α/2)
-    """
-    beta = math.radians(180.0 - alpha_deg)
-    return math.sqrt(f1**2 + f2**2 + 2*f1*f2*math.cos(beta))
-
-def transferir_altura(tracao, ai, af):
-    """
-    Transferência de tração para AF conforme DIS-NOR-012 item 6.13.4:
-      Fr = (AI / AF) × TI
-    AI = altura inicial (onde o cabo está fixado)
-    AF = altura final (0,10 m do topo, valor fixo por poste)
-    """
-    if af <= 0:
-        return float(tracao)
-    return float(tracao * (ai / af))
-
 ANGULOS = list(range(0, 365, 5))
 
 def slider_ang(label, default, key):
     return st.select_slider(label, options=ANGULOS, value=default, key=key)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# WIDGET DE SELEÇÃO DE CABO
+# WIDGETS DE SELEÇÃO DE CABO
 # ─────────────────────────────────────────────────────────────────────────────
 
 def widget_cabo(prefixo, label_cabecalho):
+    """Cabo AT/MT — retorna tração em daN."""
     st.markdown(f"**{label_cabecalho}**")
     tipo = st.selectbox(
         "Tipo de rede",
-        ["Convencional (cabo nu)","Convencional (cabo isolado)","Protegida","Compacta"],
+        ["Convencional (cabo nu)", "Convencional (cabo isolado)", "Protegida", "Compacta"],
         key=f"{prefixo}_tipo"
     )
     tracao = 0.0
@@ -213,34 +171,45 @@ def widget_cabo(prefixo, label_cabecalho):
     elif tipo == "Convencional (cabo isolado)":
         c1, c2, c3 = st.columns(3)
         qtd   = c1.number_input("Qtd. cabos", 1, 10, 3, key=f"{prefixo}_qtd")
-        local = c2.selectbox("Local", ["RURAL","URBANO"], key=f"{prefixo}_loc")
+        local = c2.selectbox("Local", ["RURAL", "URBANO"], key=f"{prefixo}_loc")
         cabo  = c3.selectbox("Cabo", list(TRACAO_CABO.keys()), key=f"{prefixo}_cabo")
         tracao = float(TRACAO_CABO.get(cabo, 0)) * qtd
 
     elif tipo == "Protegida":
         c1, c2, c3 = st.columns(3)
-        local  = c1.selectbox("Local", ["URBANO","RURAL"], key=f"{prefixo}_locp")
-        tensao = c2.selectbox("Tensão", ["15KV","36,2KV"], key=f"{prefixo}_tensp")
-        cabo   = c3.selectbox("Cabo", ["A50P","A70P","A120P","A185P"], key=f"{prefixo}_cabop")
+        local  = c1.selectbox("Local", ["URBANO", "RURAL"], key=f"{prefixo}_locp")
+        tensao = c2.selectbox("Tensão", ["15KV", "36,2KV"], key=f"{prefixo}_tensp")
+        cabo   = c3.selectbox("Cabo", ["A50P", "A70P", "A120P", "A185P"], key=f"{prefixo}_cabop")
         tracao = float(TRACAO_PROTEGIDA.get(f"{local}{tensao}{cabo}", 0))
 
     elif tipo == "Compacta":
         c1, c2, c3, c4 = st.columns(4)
-        local  = c1.selectbox("Local", ["URBANO","RURAL","RURAL > 80m"], key=f"{prefixo}_locc")
-        tensao = c2.selectbox("Tensão", ["15KV","36,2KV"], key=f"{prefixo}_tensc")
-        cabo   = c3.selectbox("Cabo", ["A35P","A50P","A70P","A120P","A185P","A240P"], key=f"{prefixo}_caboc")
+        local  = c1.selectbox("Local", ["URBANO", "RURAL", "RURAL > 80m"], key=f"{prefixo}_locc")
+        tensao = c2.selectbox("Tensão", ["15KV", "36,2KV"], key=f"{prefixo}_tensc")
+        cabo   = c3.selectbox("Cabo", ["A35P", "A50P", "A70P", "A120P", "A185P", "A240P"], key=f"{prefixo}_caboc")
         vao    = c4.number_input("Vão (m)", 10, 100, 30, step=5, key=f"{prefixo}_vaoc")
         tracao = get_tracao_compacta(local, tensao, cabo, vao)
 
     st.caption(f"Tração: **{tracao:.0f} daN**")
     return float(tracao)
 
+
 def widget_cabo_bt(prefixo, label_cabecalho):
+    """Cabo BT — retorna tração em daN."""
     st.markdown(f"**{label_cabecalho}**")
-    tipo = st.selectbox("Tipo de cabo", ["Pré-Reunido","CAZ/CAW","Convencional BT"], key=f"{prefixo}_tipo")
+    tipo = st.selectbox(
+        "Tipo de cabo",
+        ["Multiplexado (Quadro 5 Elektro)", "Pré-Reunido", "CAZ/CAW", "Convencional BT"],
+        key=f"{prefixo}_tipo"
+    )
     tracao = 0.0
 
-    if tipo == "Pré-Reunido":
+    if tipo == "Multiplexado (Quadro 5 Elektro)":
+        cabo = st.selectbox("Cabo (cód. Elektro — formação)", list(TRACAO_MULTIPLEX.keys()), key=f"{prefixo}_cabo")
+        tracao = float(TRACAO_MULTIPLEX.get(cabo, 0))
+        st.caption(f"Tração de ruptura conforme Quadro 5 DIS-NOR-014.")
+
+    elif tipo == "Pré-Reunido":
         c1, c2 = st.columns(2)
         cabo = c1.selectbox("Cabo", list(TRACAO_PRE_REUNIDO.keys()), key=f"{prefixo}_cabo")
         vao  = c2.select_slider("Vão (m)", VOS_PR, value=20, key=f"{prefixo}_vao")
@@ -253,39 +222,14 @@ def widget_cabo_bt(prefixo, label_cabecalho):
         tracao = interpolar(TRACAO_CAZ_CAW[cabo], vao)
 
     elif tipo == "Convencional BT":
-        
         st.markdown("##### Fases")
-
         c1, c2 = st.columns(2)
-
-        qtd_fase = c1.number_input(
-            "Qtd. cabos fase",
-            1, 10, 3,
-            key=f"{prefixo}_qtd_fase"
-        )
-
-        cabo_fase = c2.selectbox(
-            "Cabo fase",
-            list(TRACAO_CABO.keys()),
-            key=f"{prefixo}_fase"
-        )
-
+        qtd_fase  = c1.number_input("Qtd. cabos fase", 1, 10, 3, key=f"{prefixo}_qtd_fase")
+        cabo_fase = c2.selectbox("Cabo fase", list(TRACAO_CABO.keys()), key=f"{prefixo}_fase")
         st.markdown("##### Neutro")
-
-        cabo_neutro = st.selectbox(
-            "Cabo neutro",
-            list(TRACAO_CABO.keys()),
-            key=f"{prefixo}_neutro"
-        )
-
+        cabo_neutro = st.selectbox("Cabo neutro", list(TRACAO_CABO.keys()), key=f"{prefixo}_neutro")
         st.markdown("##### Controle")
-
-        cabo_controle = st.selectbox(
-            "Cabo controle",
-            list(TRACAO_CABO.keys()),
-            key=f"{prefixo}_controle"
-        )
-
+        cabo_controle = st.selectbox("Cabo controle", list(TRACAO_CABO.keys()), key=f"{prefixo}_controle")
         tracao = (
             float(TRACAO_CABO.get(cabo_fase, 0)) * qtd_fase
             + float(TRACAO_CABO.get(cabo_neutro, 0))
@@ -294,22 +238,23 @@ def widget_cabo_bt(prefixo, label_cabecalho):
 
     st.caption(f"Tração: **{tracao:.0f} daN**")
     return float(tracao)
+
 # ─────────────────────────────────────────────────────────────────────────────
 # PAINEL COMPLETO DE UM NÍVEL
 # ─────────────────────────────────────────────────────────────────────────────
 
 def painel_nivel(titulo, idx, alt_default, altura_util, af, altura_poste, is_bt=False):
     """
-    Retorna (fx_transf, fy_transf, mag_transf, detalhes_dict)
-    Usa fórmula analítica DIS-NOR-012 6.13.6 para a resultante,
-    e transferência de altura 6.13.4 para escalar ao AF do poste.
+    Retorna (fx_transf, fy_transf, mag_transf).
+    Cálculo vetorial + transferência de altura conforme DIS-NOR-012 6.9.7 / 6.13.4.
+    Tangente com mesmo cabo → resultante = 0 (correto fisicamente).
     """
     st.markdown(f"#### {titulo}")
 
     alt_est = st.number_input(
         "Altura da estrutura — AI (m)", 0.0, float(altura_poste),
         value=float(alt_default), step=0.1, key=f"{idx}_alt",
-        help="Altura onde o cabo está fixado no poste (AI na norma)"
+        help="AI = altura onde o cabo está fixado no poste"
     )
 
     st.markdown("---")
@@ -323,7 +268,7 @@ def painel_nivel(titulo, idx, alt_default, altura_util, af, altura_poste, is_bt=
         else:
             t_chegada = widget_cabo(f"{idx}_ch", "Cabo que CHEGA")
         ang_chegada = slider_ang("Ângulo de chegada (°)", 0, f"{idx}_ang_ch")
-        st.caption("0°=Leste  90°=Norte  180°=Oeste  270°=Sul")
+        st.caption("0°=Leste  |  90°=Norte  |  180°=Oeste  |  270°=Sul")
 
     # ── SAÍDA ─────────────────────────────────────────────────────────────────
     with col_sa:
@@ -339,7 +284,7 @@ def painel_nivel(titulo, idx, alt_default, altura_util, af, altura_poste, is_bt=
             key=f"{idx}_tipo_saida",
         )
 
-        t_saida  = 0.0
+        t_saida   = 0.0
         ang_saida = 0
 
         if tipo_saida == "Fim de linha (não sai nada)":
@@ -349,6 +294,10 @@ def painel_nivel(titulo, idx, alt_default, altura_util, af, altura_poste, is_bt=
             t_saida   = t_chegada
             ang_saida = (ang_chegada + 180) % 360
             st.caption(f"Mesmo cabo ({t_chegada:.0f} daN) — saída a {ang_saida}°.")
+            st.info(
+                "ℹ️ Cabo reto com mesma seção: forças opostas iguais → **resultante = 0**. "
+                "Isso é correto — o poste não sofre esforço transversal em tangente perfeita."
+            )
 
         elif tipo_saida == "Sai na tangente — cabo diferente":
             if is_bt:
@@ -356,7 +305,7 @@ def painel_nivel(titulo, idx, alt_default, altura_util, af, altura_poste, is_bt=
             else:
                 t_saida = widget_cabo(f"{idx}_sa", "Cabo que SAI")
             ang_saida = (ang_chegada + 180) % 360
-            st.caption(f"Saída a {ang_saida}° (tangente) — cabos diferentes → há resultante.")
+            st.caption(f"Saída a {ang_saida}° (tangente) — cabos diferentes → há resultante = |T₁ − T₂|.")
 
         else:  # Deriva
             if is_bt:
@@ -365,7 +314,7 @@ def painel_nivel(titulo, idx, alt_default, altura_util, af, altura_poste, is_bt=
                 t_saida = widget_cabo(f"{idx}_sa", "Cabo que SAI")
             ang_saida = slider_ang("Ângulo de saída (°)", 90, f"{idx}_ang_sa")
 
-    # ── CÁLCULO VETORIAL (soma de vetores) ────────────────────────────────────
+    # ── CÁLCULO VETORIAL ──────────────────────────────────────────────────────
     ar = math.radians(ang_chegada)
     fx = t_chegada * math.cos(ar)
     fy = t_chegada * math.sin(ar)
@@ -377,14 +326,14 @@ def painel_nivel(titulo, idx, alt_default, altura_util, af, altura_poste, is_bt=
 
     mag = math.sqrt(fx**2 + fy**2)
 
-    # ── ÂNGULO DE DEFLEXÃO α para exibir na fórmula da norma ─────────────────
+    # Ângulo de deflexão α entre os dois cabos
     if tipo_saida != "Fim de linha (não sai nada)":
-        diff = abs(ang_saida - ang_chegada) % 360
-        alpha_deflexao = min(diff, 360 - diff)   # ângulo entre os dois cabos
+        diff          = abs(ang_saida - ang_chegada) % 360
+        alpha_deflexao = min(diff, 360 - diff)
     else:
         alpha_deflexao = 0.0
 
-    # ── TRANSFERÊNCIA DE ALTURA conforme 6.13.4: Fr = (AI/AF) × TI ───────────
+    # ── TRANSFERÊNCIA DE ALTURA: Fr = (AI / AF) × TI ─────────────────────────
     fator = alt_est / af if af > 0 else 1.0
     fx_t  = fx  * fator
     fy_t  = fy  * fator
@@ -395,8 +344,10 @@ def painel_nivel(titulo, idx, alt_default, altura_util, af, altura_poste, is_bt=
     c1.metric("Tração chegada (daN)", f"{t_chegada:.0f}")
     c2.metric("Tração saída (daN)",   f"{t_saida:.0f}")
     c3.metric("Ângulo deflexão α",    f"{alpha_deflexao:.0f}°")
-    c4.metric("🔴 Resultante transf. (daN)", f"{mag_t:.1f}",
-            help=f"Fr = (AI={alt_est:.2f} / AF={af:.2f}) × {mag:.1f} daN")
+    c4.metric(
+        "🔴 Resultante transf. (daN)", f"{mag_t:.1f}",
+        help=f"Fr = (AI={alt_est:.2f} m / AF={af:.2f} m) × {mag:.1f} daN"
+    )
 
     return fx_t, fy_t, mag_t
 
@@ -417,62 +368,49 @@ st.subheader("🪝 Dados do Poste")
 ALTURAS_POSTE = [9, 10, 11, 12, 14, 16]
 CLASSES_POSTE = [200, 300, 400, 600, 1000, 1500]
 
-c1, c2 = st.columns(2)
+c1, c2, c3 = st.columns(3)
 
 altura_poste = float(c1.selectbox(
-    "Altura do poste (m)",
-    ALTURAS_POSTE,
-    index=ALTURAS_POSTE.index(12)
+    "Altura do poste (m)", ALTURAS_POSTE, index=ALTURAS_POSTE.index(12)
 ))
 
 classe_poste = c2.selectbox(
-    "Classe do poste (daN)",
-    CLASSES_POSTE,
-    index=CLASSES_POSTE.index(600),
+    "Classe do poste (daN)", CLASSES_POSTE, index=CLASSES_POSTE.index(600),
     help="Esforço nominal suportado pelo poste"
 )
 
-# AF conforme DIS-NOR-012 6.13.4
-af_poste = ALTURA_FINAL[int(altura_poste)]
-
+# AF = altura − 0,20 m (DIS-NOR-014 6.9.7)
+af_poste      = ALTURA_FINAL[int(altura_poste)]
+# Altura útil (AI de referência) = altura − topo − engastamento
 _engastamento = round(altura_poste * 0.10 + 0.60, 2)
+altura_util   = round(altura_poste - 0.20 - _engastamento, 2)
 
-altura_util = round(
-    altura_poste - 0.20 - _engastamento,
-    2
-)
-
-st.markdown(
-    f"""
-**Alturas calculadas (Elektro / Norma)**  
-Topo: −0,20 m | Engastamento: −{_engastamento:.2f} m ({int(altura_poste)}m×10%+0,60) | Útil: {altura_util:.2f} m
-"""
-)
+with c3:
+    st.markdown("**Alturas calculadas — Elektro / Norma**")
+    st.caption(
+        f"Topo: −0,20 m  |  Engastamento: −{_engastamento:.2f} m "
+        f"({int(altura_poste)}m×10%+0,60)"
+    )
+    st.info(
+        f"Altura útil (AI ref.): **{altura_util:.2f} m**\n\n"
+        f"Altura final AF (norma): **{af_poste:.2f} m**"
+    )
 
 st.divider()
 
 # ── 1º NÍVEL ─────────────────────────────────────────────────────────────────
-# ── 1º NÍVEL ─────────────────────────────────────────────────────────────────
 st.subheader("⚡ 1º Nível — Rede Primária")
-
 tem_n1 = st.checkbox("Este poste possui 1º nível de rede primária")
-
 fx1, fy1, mag1 = 0.0, 0.0, 0.0
-
 if tem_n1:
     with st.container(border=True):
         fx1, fy1, mag1 = painel_nivel(
-            "1º Nível",
-            "n1",
-            altura_util,
-            altura_util,
-            af_poste,
-            altura_poste
+            "1º Nível", "n1", altura_util, altura_util, af_poste, altura_poste
         )
 
 st.divider()
 
-# ── 2º NÍVEL (opcional) ───────────────────────────────────────────────────────
+# ── 2º NÍVEL ─────────────────────────────────────────────────────────────────
 st.subheader("⚡ 2º Nível — Rede Primária (opcional)")
 tem_n2 = st.checkbox("Este poste possui 2º nível de rede primária")
 fx2, fy2, mag2 = 0.0, 0.0, 0.0
@@ -524,24 +462,30 @@ if mag_tot > 0:
         )
     else:
         proxima = next((c for c in CLASSES_POSTE if c >= mag_tot), None)
-        sugestao = f"Considere classe **{proxima} daN**." if proxima else "Sem classe disponível — consulte engenheiro."
+        sugestao = (
+            f"Considere classe **{proxima} daN**."
+            if proxima else "Sem classe disponível — consulte engenheiro."
+        )
         st.error(
             f"🔴 Esforço **{mag_tot:.1f} daN** EXCEDE a classe {classe_poste} daN "
             f"em **{abs(margem):.1f} daN**. {sugestao}"
         )
 
-with st.expander("📐 Referência das fórmulas utilizadas (DIS-NOR-012)"):
+with st.expander("📐 Referência das fórmulas utilizadas (DIS-NOR-012 / DIS-NOR-014)"):
     st.markdown(f"""
-**6.13.4 — Transferência de altura:**
+**6.9.7 / 6.13.4 — Transferência de altura:**
 > Fr = (AI / AF) × TI
-> AF do poste {int(altura_poste)} m = **{af_poste} m**
+> AF para poste de {int(altura_poste)} m = **{af_poste:.2f} m** (altura − 0,20 m)
 
 **6.13.6 — Resultante analítica:**
 > R = √(F₁² + F₂² + 2·F₁·F₂·cos β)  onde β = 180° − α
 
 **6.13.7 — Simplificada (F₁ = F₂):**
 > R = 2·F·sen(α/2)
+
+**Tangente perfeita (mesmo cabo, α = 180°):**
+> R = 0 — as forças se cancelam. Correto fisicamente.
 """)
 
 st.divider()
-st.caption("Cálculos conforme DIS-NOR-012 Rev.08 e DIS-NOR-014 Rev.2024. Validar com engenheiro responsável.")
+st.caption("Cálculos conforme DIS-NOR-012 Rev.08 e DIS-NOR-014 Rev.2024 — Elektro. Validar com engenheiro responsável.")

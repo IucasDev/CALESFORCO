@@ -153,8 +153,8 @@ def transferir_altura(tracao, ai, af):
     AF = altura final (0,10 m do topo, valor fixo por poste)
     """
     if af <= 0:
-        return tracao
-    return tracao * (ai / af)
+        return float(tracao)
+    return float(tracao * (ai / af))
 
 ANGULOS = list(range(0, 365, 5))
 
@@ -203,7 +203,7 @@ def widget_cabo(prefixo, label_cabecalho):
         tracao = get_tracao_compacta(local, tensao, cabo, vao)
 
     st.caption(f"Tração: **{tracao:.0f} daN**")
-    return tracao
+    return float(tracao)
 
 def widget_cabo_bt(prefixo, label_cabecalho):
     st.markdown(f"**{label_cabecalho}**")

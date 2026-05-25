@@ -225,7 +225,7 @@ def widget_cabo_bt(prefixo, label_cabecalho):
     elif tipo == "Convencional BT":
 
     # ── FASES ─────────────────────────────
-    st.markdown("##### Fases")
+        st.markdown("##### Fases")
 
     c1, c2 = st.columns(2)
 

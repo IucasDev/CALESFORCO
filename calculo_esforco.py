@@ -387,33 +387,37 @@ st.subheader("🪝 Dados do Poste")
 ALTURAS_POSTE = [9, 10, 11, 12, 14, 16]
 CLASSES_POSTE = [200, 300, 400, 600, 1000, 1500]
 
-c1, c2, c3 = st.columns(3)
+c1, c2 = st.columns(2)
 
 altura_poste = float(c1.selectbox(
-    "Altura do poste (m)", ALTURAS_POSTE, index=ALTURAS_POSTE.index(12)
+    "Altura do poste (m)",
+    ALTURAS_POSTE,
+    index=ALTURAS_POSTE.index(12)
 ))
 
 classe_poste = c2.selectbox(
-    "Classe do poste (daN)", CLASSES_POSTE, index=CLASSES_POSTE.index(600),
+    "Classe do poste (daN)",
+    CLASSES_POSTE,
+    index=CLASSES_POSTE.index(600),
     help="Esforço nominal suportado pelo poste"
 )
 
-# AF conforme DIS-NOR-012 6.13.4 (valores fixos da norma)
-af_poste      = ALTURA_FINAL[int(altura_poste)]
-# AI padrão = AF (altura útil ≈ AF para estruturas no topo)
-_engastamento = round(altura_poste * 0.10 + 0.60, 2)
-altura_util   = round(altura_poste - 0.20 - _engastamento, 2)
+# AF conforme DIS-NOR-012 6.13.4
+af_poste = ALTURA_FINAL[int(altura_poste)]
 
-with c3:
-    st.markdown("**Alturas calculadas (Electro / Norma)**")
-    st.caption(
-        f"Topo: −0,20 m | Engastamento: −{_engastamento:.2f} m "
-        f"({int(altura_poste)}m×10%+0,60)"
-    )
-    st.info(
-        f"Altura útil (AI ref.): **{altura_util:.2f} m**  \n"
-        f"Altura final AF (norma): **{af_poste:.1f} m**"
-    )
+_engastamento = round(altura_poste * 0.10 + 0.60, 2)
+
+altura_util = round(
+    altura_poste - 0.20 - _engastamento,
+    2
+)
+
+st.markdown(
+    f"""
+**Alturas calculadas (Elektro / Norma)**  
+Topo: −0,20 m | Engastamento: −{_engastamento:.2f} m ({int(altura_poste)}m×10%+0,60) | Útil: {altura_util:.2f} m
+"""
+)
 
 st.divider()
 

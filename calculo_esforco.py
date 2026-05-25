@@ -2,6 +2,36 @@ import streamlit as st
 import math
 
 st.set_page_config(page_title="Cálculo de Esforços Mecânicos", page_icon="🏗️", layout="wide")
+st.markdown("""
+<style>
+
+/* Mãozinha em selects */
+div[data-baseweb="select"] > div {
+    cursor: pointer !important;
+}
+
+/* Mãozinha em checkbox */
+.stCheckbox {
+    cursor: pointer !important;
+}
+
+/* Mãozinha em radio */
+.stRadio {
+    cursor: pointer !important;
+}
+
+/* Mãozinha em slider */
+.stSlider {
+    cursor: pointer !important;
+}
+
+/* Mãozinha nos botões */
+button {
+    cursor: pointer !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 st.title("🏗️ Cálculo de Esforços Mecânicos em Postes")
 st.caption("Conforme DIS-NOR-012 Rev.08 e DIS-NOR-014 Rev.2024 — Electro")

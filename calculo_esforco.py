@@ -224,70 +224,43 @@ def widget_cabo_bt(prefixo, label_cabecalho):
 
     elif tipo == "Convencional BT":
 
-    # ── FASES ─────────────────────────────
         st.markdown("##### Fases")
-
     c1, c2 = st.columns(2)
 
     qtd_fase = c1.number_input(
-        "Qtd. fases",
-        1, 6, 3,
+        "Qtd. cabos fase",
+        1, 10, 3,
         key=f"{prefixo}_qtd_fase"
     )
 
     cabo_fase = c2.selectbox(
-        "Cabo das fases",
+        "Cabo fase",
         list(TRACAO_CABO.keys()),
-        key=f"{prefixo}_cabo_fase"
+        key=f"{prefixo}_fase"
     )
 
-    tracao_fase = float(TRACAO_CABO.get(cabo_fase, 0)) * qtd_fase
-
-    # ── NEUTRO ────────────────────────────
     st.markdown("##### Neutro")
 
-    usar_neutro = st.checkbox(
-        "Possui neutro",
-        value=True,
-        key=f"{prefixo}_usa_neutro"
+    cabo_neutro = st.selectbox(
+        "Cabo neutro",
+        list(TRACAO_CABO.keys()),
+        key=f"{prefixo}_neutro"
     )
 
-    tracao_neutro = 0
-
-    if usar_neutro:
-
-        cabo_neutro = st.selectbox(
-            "Cabo do neutro",
-            list(TRACAO_CABO.keys()),
-            key=f"{prefixo}_cabo_neutro"
-        )
-
-        tracao_neutro = float(TRACAO_CABO.get(cabo_neutro, 0))
-
-    # ── CONTROLE ──────────────────────────
     st.markdown("##### Controle")
 
-    usar_controle = st.checkbox(
-        "Possui controle",
-        value=False,
-        key=f"{prefixo}_usa_controle"
+    cabo_controle = st.selectbox(
+        "Cabo controle",
+        list(TRACAO_CABO.keys()),
+        key=f"{prefixo}_controle"
     )
 
-    tracao_controle = 0
-
-    if usar_controle:
-
-        cabo_controle = st.selectbox(
-            "Cabo do controle",
-            list(TRACAO_CABO.keys()),
-            key=f"{prefixo}_cabo_controle"
-        )
-
-        tracao_controle = float(TRACAO_CABO.get(cabo_controle, 0))
-
-    # ── TOTAL ─────────────────────────────
-    tracao = tracao_fase + tracao_neutro + tracao_controle
-
+    # SOMA TOTAL
+    tracao = (
+        float(TRACAO_CABO.get(cabo_fase, 0)) * qtd_fase
+        + float(TRACAO_CABO.get(cabo_neutro, 0))
+        + float(TRACAO_CABO.get(cabo_controle, 0))
+    )
 # ─────────────────────────────────────────────────────────────────────────────
 # PAINEL COMPLETO DE UM NÍVEL
 # ─────────────────────────────────────────────────────────────────────────────

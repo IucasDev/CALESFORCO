@@ -254,20 +254,13 @@ def widget_cabo_bt(prefixo, label_cabecalho):
         if usar_neutro:
             c3, c4 = st.columns(2)
 
-            qtd_neutro = c3.number_input(
-                "Qtd. neutro",
-                1, 4, 1,
-                key=f"{prefixo}_qtd_neutro"
-            )
-
             cabo_neutro = c4.selectbox(
                 "Cabo do neutro",
                 list(TRACAO_CABO.keys()),
                 key=f"{prefixo}_cabo_neutro"
             )
 
-            tracao_neutro = float(TRACAO_CABO.get(cabo_neutro, 0)) * qtd_neutro
-
+            tracao_neutro = float(TRACAO_CABO.get(cabo_neutro, 0))
         st.markdown("##### Controle")
 
         usar_controle = st.checkbox(
@@ -281,19 +274,13 @@ def widget_cabo_bt(prefixo, label_cabecalho):
         if usar_controle:
             c5, c6 = st.columns(2)
 
-            qtd_controle = c5.number_input(
-                "Qtd. controle",
-                1, 4, 1,
-                key=f"{prefixo}_qtd_controle"
-            )
-
             cabo_controle = c6.selectbox(
                 "Cabo do controle",
                 list(TRACAO_CABO.keys()),
                 key=f"{prefixo}_cabo_controle"
             )
 
-            tracao_controle = float(TRACAO_CABO.get(cabo_controle, 0)) * qtd_controle
+            tracao_controle = float(TRACAO_CABO.get(cabo_controle, 0))
 
         tracao = tracao_fase + tracao_neutro + tracao_controle
 
@@ -401,7 +388,7 @@ def painel_nivel(titulo, idx, alt_default, altura_util, af, altura_poste, is_bt=
     c2.metric("Tração saída (daN)",   f"{t_saida:.0f}")
     c3.metric("Ângulo deflexão α",    f"{alpha_deflexao:.0f}°")
     c4.metric("🔴 Resultante transf. (daN)", f"{mag_t:.1f}",
-              help=f"Fr = (AI={alt_est:.2f} / AF={af:.2f}) × {mag:.1f} daN")
+            help=f"Fr = (AI={alt_est:.2f} / AF={af:.2f}) × {mag:.1f} daN")
 
     return fx_t, fy_t, mag_t
 

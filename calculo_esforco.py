@@ -58,13 +58,43 @@ TRACAO_MULTIPLEX = {
     "30120 — 3x1x120+70": 1991,
 }
 
-# Cabos AT/MT convencionais isolados
+# ─── REDE PRIMÁRIA NUA — Quadro 2 DIS-NOR-018 (tração de projeto por fase, daN) ───
+# Alumínio com alma de aço (CAA) — valores padrão
+TRACAO_CAA = {
+    "4 AWG CAA (Swan)":          325,
+    "1/0 AWG CAA (Raven)":       325,   # agrupado com 77,47 MCM conforme Quadro 2
+    "77,47 MCM CAL":             325,
+    "155,4 MCM CAL":             605,
+    "4/0 AWG CAA (Penguin)":    1212,
+    "336,4 MCM CAA (Linnet)":   1517,
+    "4/0 AWG CAA TR (reduzida)":  807,
+    "336,4 MCM CAA TR (reduzida)":857,
+}
+
+# Cobre nu — Quadro 2 DIS-NOR-018
+TRACAO_COBRE_NU = {
+    "25mm² Cu":   315,
+    "35mm² Cu":   612,
+    "70mm² Cu":   864,
+    "95mm² Cu":  1915,
+}
+
+# Cabos AT/MT convencionais isolados (rede compacta/protegida — planilha DIS-NOR-013)
+# Nomenclatura interna Elektro: letra = material, número = bitola AWG/MCM
+# S=aço, A=alumínio, C=cobre; sufixo P=protegido
 TRACAO_CABO = {
-    "A02": 86,  "A04": 60,  "A20": 173, "A33": 436, "A40": 274,
-    "A47": 619, "C02": 171, "C04": 107, "C06": 60,  "C20": 342,
-    "C25": 106, "C35": 155, "C40": 544, "C70": 296, "C120": 568,
-    "S04": 219, "S02": 347, "S20": 696, "S40": 1108,
-    "S33": 1388, "S47": 2497,
+    # Alumínio (A) — rede convencional isolada
+    "A04":  60,  "A02":  86,  "A20": 173, "A40": 274,
+    "A33": 436,  "A47": 619,
+    # Cobre (C) — rede convencional isolada
+    "C06":  60,  "C04": 107,  "C02": 171, "C20": 342,
+    "C40": 544,  "C25": 106,  "C35": 155, "C70": 296, "C120": 568,
+    # Aço (S) — rede convencional
+    "S04": 219,  "S02": 347,  "S20": 696,
+    "S40": 1108, "S33": 1388, "S47": 2497,
+    # Tração reduzida
+    "S40TR": 807, "S33TR": 857,
+    # Protegidos (P)
     "A50P": 245, "A70P": 268, "A120P": 317, "A180P": 359,
 }
 
@@ -157,18 +187,30 @@ def widget_cabo(prefixo, label_cabecalho):
     st.markdown(f"**{label_cabecalho}**")
     tipo = st.selectbox(
         "Tipo de rede",
-        ["Convencional (cabo nu)", "Convencional (cabo isolado)", "Protegida", "Compacta"],
+        [
+            "Convencional nua — CAA/CAL (Alumínio c/ alma aço)",
+            "Convencional nua — Cobre nu",
+            "Convencional isolada (A, C, S)",
+            "Protegida",
+            "Compacta",
+        ],
         key=f"{prefixo}_tipo"
     )
     tracao = 0.0
 
-    if tipo == "Convencional (cabo nu)":
+    if tipo == "Convencional nua — CAA/CAL (Alumínio c/ alma aço)":
         c1, c2 = st.columns(2)
         qtd  = c1.number_input("Qtd. cabos por fase", 1, 6, 1, key=f"{prefixo}_qtd")
-        cabo = c2.selectbox("Cabo", list(TRACAO_NUS.keys()), key=f"{prefixo}_cabo")
-        tracao = float(TRACAO_NUS.get(cabo, 0)) * qtd
+        cabo = c2.selectbox("Cabo", list(TRACAO_CAA.keys()), key=f"{prefixo}_cabo")
+        tracao = float(TRACAO_CAA.get(cabo, 0)) * qtd
 
-    elif tipo == "Convencional (cabo isolado)":
+    elif tipo == "Convencional nua — Cobre nu":
+        c1, c2 = st.columns(2)
+        qtd  = c1.number_input("Qtd. cabos por fase", 1, 6, 1, key=f"{prefixo}_qtd")
+        cabo = c2.selectbox("Cabo", list(TRACAO_COBRE_NU.keys()), key=f"{prefixo}_cabo")
+        tracao = float(TRACAO_COBRE_NU.get(cabo, 0)) * qtd
+
+    elif tipo == "Convencional isolada (A, C, S)":
         c1, c2, c3 = st.columns(3)
         qtd   = c1.number_input("Qtd. cabos", 1, 10, 3, key=f"{prefixo}_qtd")
         local = c2.selectbox("Local", ["RURAL", "URBANO"], key=f"{prefixo}_loc")
@@ -243,19 +285,24 @@ def widget_cabo_bt(prefixo, label_cabecalho):
 # PAINEL COMPLETO DE UM NÍVEL
 # ─────────────────────────────────────────────────────────────────────────────
 
-def painel_nivel(titulo, idx, alt_default, altura_util, af, altura_poste, is_bt=False):
+def painel_nivel(titulo, idx, alt_default, altura_util, af, altura_poste, is_bt=False, fixo_alt=False):
     """
     Retorna (fx_transf, fy_transf, mag_transf).
     Cálculo vetorial + transferência de altura conforme DIS-NOR-012 6.9.7 / 6.13.4.
     Tangente com mesmo cabo → resultante = 0 (correto fisicamente).
+    fixo_alt=True → altura travada, só exibe informativo (não editável).
     """
     st.markdown(f"#### {titulo}")
 
-    alt_est = st.number_input(
-        "Altura da estrutura — AI (m)", 0.0, float(altura_poste),
-        value=float(alt_default), step=0.1, key=f"{idx}_alt",
-        help="AI = altura onde o cabo está fixado no poste"
-    )
+    if fixo_alt:
+        alt_est = float(alt_default)
+        st.info(f"📏 Altura da estrutura (AI): **{alt_est:.2f} m** — fixo conforme norma Elektro")
+    else:
+        alt_est = st.number_input(
+            "Altura da estrutura — AI (m)", 0.0, float(altura_poste),
+            value=float(alt_default), step=0.1, key=f"{idx}_alt",
+            help="AI = altura onde o cabo está fixado no poste"
+        )
 
     st.markdown("---")
     col_ch, col_sa = st.columns(2)
@@ -405,7 +452,8 @@ fx1, fy1, mag1 = 0.0, 0.0, 0.0
 if tem_n1:
     with st.container(border=True):
         fx1, fy1, mag1 = painel_nivel(
-            "1º Nível", "n1", altura_util, altura_util, af_poste, altura_poste
+            "1º Nível", "n1", af_poste, altura_util, af_poste, altura_poste,
+            fixo_alt=True
         )
 
 st.divider()
@@ -418,7 +466,8 @@ if tem_n2:
     with st.container(border=True):
         fx2, fy2, mag2 = painel_nivel(
             "2º Nível", "n2",
-            max(0.0, altura_util - 1.5), altura_util, af_poste, altura_poste
+            max(0.0, af_poste - 1.0), altura_util, af_poste, altura_poste,
+            fixo_alt=True
         )
 
 st.divider()

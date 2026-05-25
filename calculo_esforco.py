@@ -418,11 +418,23 @@ with c3:
 st.divider()
 
 # ── 1º NÍVEL ─────────────────────────────────────────────────────────────────
+# ── 1º NÍVEL ─────────────────────────────────────────────────────────────────
 st.subheader("⚡ 1º Nível — Rede Primária")
-with st.container(border=True):
-    fx1, fy1, mag1 = painel_nivel(
-        "1º Nível", "n1", altura_util, altura_util, af_poste, altura_poste
-    )
+
+tem_n1 = st.checkbox("Este poste possui 1º nível de rede primária")
+
+fx1, fy1, mag1 = 0.0, 0.0, 0.0
+
+if tem_n1:
+    with st.container(border=True):
+        fx1, fy1, mag1 = painel_nivel(
+            "1º Nível",
+            "n1",
+            altura_util,
+            altura_util,
+            af_poste,
+            altura_poste
+        )
 
 st.divider()
 

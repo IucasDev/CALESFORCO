@@ -211,11 +211,21 @@ def widget_cabo(prefixo, label_cabecalho):
         tracao = float(TRACAO_COBRE_NU.get(cabo, 0)) * qtd
 
     elif tipo == "Convencional isolada (A, C, S)":
+        # Separar por família para facilitar a escolha
+        FAMILIAS = {
+            "S — Alumínio com alma de aço": ["S04","S02","S20","S40","S33","S47","S40TR","S33TR"],
+            "A — Alumínio sem alma de aço": ["A04","A02","A20","A40","A33","A47"],
+            "C — Cobre":                    ["C06","C04","C02","C20","C40","C25","C35","C70","C120"],
+        }
         c1, c2, c3 = st.columns(3)
-        qtd   = c1.number_input("Qtd. cabos", 1, 10, 3, key=f"{prefixo}_qtd")
-        local = c2.selectbox("Local", ["RURAL", "URBANO"], key=f"{prefixo}_loc")
-        cabo  = c3.selectbox("Cabo", list(TRACAO_CABO.keys()), key=f"{prefixo}_cabo")
-        tracao = float(TRACAO_CABO.get(cabo, 0)) * qtd
+        qtd     = c1.number_input("Qtd. cabos por fase", 1, 10, 3, key=f"{prefixo}_qtd")
+        familia = c2.selectbox("Família", list(FAMILIAS.keys()), key=f"{prefixo}_familia")
+        cabo    = c3.selectbox("Cabo", FAMILIAS[familia], key=f"{prefixo}_cabo")
+        tracao  = float(TRACAO_CABO.get(cabo, 0)) * qtd
+        st.caption(
+            f"S = alumínio c/ alma aço | A = alumínio s/ alma | C = cobre  "
+            f"| TR = tração reduzida"
+        )
 
     elif tipo == "Protegida":
         c1, c2, c3 = st.columns(3)

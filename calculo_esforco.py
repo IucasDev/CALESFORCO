@@ -430,6 +430,9 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_form = st
 
 tem_n1=tem_n2=tem_sec=False
+fx1=fy1=mag1=0.0
+fx2=fy2=mag2=0.0
+fx_s=fy_s=mag_s=0.0
 
 if True:  # col_form
     # ── IDENTIFICAÇÃO ──────────────────────────────────────────────────────

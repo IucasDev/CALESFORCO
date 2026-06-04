@@ -173,23 +173,44 @@ hr { border-color: #21262d !important; margin: 8px 0 !important; }
 
 # ── DADOS ─────────────────────────────────────────────────────────────────────
 
-ALTURA_FINAL = {9:8.80, 10:9.80, 11:10.80, 12:11.80, 14:13.80, 16:15.80}
+# AF = altura transferida a 0,10 m do topo (DIS-NOR-012 item 6.13.4)
+# Exemplos da norma: 9m→7,4  11m→9,2  12m→10,1
+ALTURA_FINAL = {9:7.4, 10:8.3, 11:9.2, 12:10.1, 14:11.9, 16:13.7}
 
+# Tabela 14 — Trações por fase dos condutores nus (DIS-NOR-012 item 6.13.9)
+# Usados em rede primária convencional nua e rede secundária nua
 TRACAO_CONV = {
-    "S04":219,"S02":347,"S20":696,"S40":1108,"S336":1388,"S477":2497,
-    "S40TR":807,"S33TR":857,"S47TR":756,
-    "A04":60,"A02":86,"A20":173,"A40":274,"A336":436,"A477":619,
-    "C06":60,"C04":107,"C02":171,"C20":342,"C40":544,
-    "C25":106,"C35":155,"C70":296,"C120":568,
+    # CA — Alumínio SEM alma de aço (Tabela 14)
+    "4 CA":    60,
+    "2 CA":    86,
+    "2/0 CA":  173,
+    "4/0 CA":  274,
+    "336,4 CA":436,
+    # CAA — Alumínio COM alma de aço (Tabela 14)
+    "4 CAA":     75,
+    "1/0 CAA":  173,
+    "4/0 CAA":  347,
+    "336,4 CAA":551,
+    # Cobre nu (Tabela 14)
+    "35mm² Cu":  244,
+    "70mm² Cu":  477,
+    "95mm² Cu":  663,
+    "120mm² Cu": 892,
+    # Alumínio liga CAL (Tabela 14)
+    "77,47 MCM CAL":  72,
+    "155,4 MCM CAL":  144,
+    "246,9 MCM CAL":  227,
+    "465,4 MCM CAL":  427,
 }
 FAMILIAS_CONV = {
-    "S — Alum. c/ alma de aço": ["S04","S02","S20","S40","S336","S477","S40TR","S33TR","S47TR"],
-    "A — Alum. s/ alma de aço": ["A04","A02","A20","A40","A336","A477"],
-    "C — Cobre":                 ["C06","C04","C02","C20","C40","C25","C35","C70","C120"],
+    "CA — Alum. s/ alma de aço": ["4 CA","2 CA","2/0 CA","4/0 CA","336,4 CA"],
+    "CAA — Alum. c/ alma de aço":["4 CAA","1/0 CAA","4/0 CAA","336,4 CAA"],
+    "Cu — Cobre nu":             ["35mm² Cu","70mm² Cu","95mm² Cu","120mm² Cu"],
+    "CAL — Alumínio liga":       ["77,47 MCM CAL","155,4 MCM CAL","246,9 MCM CAL","465,4 MCM CAL"],
 }
 CABOS_BT = {
-    "A — Alumínio": ["A04","A02","A20","A40","A336","A477"],
-    "C — Cobre":    ["C06","C04","C02","C20","C40","C25","C35","C70","C120"],
+    "CA — Alumínio": ["4 CA","2 CA","2/0 CA","4/0 CA","336,4 CA"],
+    "Cu — Cobre":    ["35mm² Cu","70mm² Cu","95mm² Cu","120mm² Cu"],
 }
 TRACAO_PA = {"PA50":311,"PA70":375,"PA95":469,"PA120":527,"PA185":683,"PA240":795}
 TRACAO_PB = {
@@ -455,7 +476,7 @@ if True:  # col_form
 <div style="background:#161b22;border:1px solid #21262d;border-radius:6px;padding:10px 14px;font-size:0.8rem;display:flex;gap:24px;margin-top:4px">
   <span style="color:#8b949e">Engastamento: <strong style="color:#e6edf3">{_eng:.2f} m</strong></span>
   <span style="color:#8b949e">Altura útil: <strong style="color:#e6edf3">{alt_util:.2f} m</strong></span>
-  <span style="color:#f6a800">AF (norma): <strong>{af_poste:.2f} m</strong></span>
+  <span style="color:#f6a800">AF 0,10m topo: <strong>{af_poste:.2f} m</strong></span>
 </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -525,7 +546,7 @@ if True:  # col_form
 
     with st.expander("📐 Fórmulas (DIS-NOR-012 / DIS-NOR-014)"):
         st.markdown(f"""
-**Transferência (6.9.7):** Fr = (AI / AF) × TI — AF poste {int(altura_poste)}m = **{af_poste:.2f} m**
+**Transferência (6.13.4):** Fr = (AI / AF) × TI — AF = altura − 0,10m do topo → poste {int(altura_poste)}m = **{af_poste:.2f} m**
 
 **Resultante (6.13.6):** R = √(F₁² + F₂² + 2·F₁·F₂·cos β),  β = 180°−α
 

@@ -257,122 +257,6 @@ ANGULOS = list(range(0,365,5))
 def ang_slider(lbl, default, key):
     return st.select_slider(lbl, ANGULOS, value=default, key=key)
 
-# ── DESENHO SVG DO POSTE ───────────────────────────────────────────────────────
-
-def desenho_poste(altura_m, tem_n1, tipo_n1, tem_n2, tipo_n2, tem_sec, tipo_sec,
-                  af, ang_ch_n1=0, tipo_saida_n1="Fim de linha",
-                  ang_ch_n2=0, tipo_saida_n2="Fim de linha",
-                  ang_ch_sec=0, tipo_saida_sec="Fim de linha"):
-
-    W, H = 360, 520
-    # Escala: poste vai de y=60 (topo) a y=460 (base no chão)
-    POSTE_TOP_Y = 60
-    POSTE_BOT_Y = 460
-    POSTE_H_PX  = POSTE_BOT_Y - POSTE_TOP_Y
-    CX = 180  # centro horizontal
-
-    def m2y(metros):
-        """Converte metros desde o solo para y no SVG (base=460, topo=60)."""
-        frac = metros / altura_m
-        return POSTE_BOT_Y - frac * POSTE_H_PX
-
-    solo_y = POSTE_BOT_Y
-
-    # Alturas das estruturas
-    af_y   = m2y(af)
-    n2_y   = m2y(max(0, af - 1.0))
-    sec_y  = m2y(max(0, af - 3.5))
-    eng_y  = m2y(0)  # nível do solo
-
-    def cabo_svg(cx, y, ang_grau, tipo_rede, lado="esq", comprimento=90):
-        """Gera elemento SVG de cabo saindo do poste."""
-        cores = {
-            "Convencional": "#a8b4bf",
-            "Protegida":    "#4fc3f7",
-            "Compacta":     "#81c784",
-            "PA":           "#ffb74d",
-            "PB":           "#ce93d8",
-            "CAZ":          "#ef9a9a",
-            "default":      "#a8b4bf",
-        }
-        cor = next((v for k,v in cores.items() if k.lower() in (tipo_rede or "").lower()), cores["default"])
-        espessura = 3 if "compacta" in (tipo_rede or "").lower() else 2
-        rad = math.radians(ang_grau)
-        x2 = cx + math.cos(rad) * comprimento
-        y2 = y  - math.sin(rad) * comprimento
-        return f'<line x1="{cx}" y1="{y}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{cor}" stroke-width="{espessura}" stroke-linecap="round"/>'
-
-    def braço_svg(cx, y, label, cor_label="#f6a800"):
-        """Braço horizontal da estrutura."""
-        return f'''
-<line x1="{cx-40}" y1="{y}" x2="{cx+40}" y2="{y}" stroke="#6e7681" stroke-width="2"/>
-<circle cx="{cx-40}" cy="{y}" r="4" fill="#4d90fe" opacity="0.9"/>
-<circle cx="{cx+40}" cy="{y}" r="4" fill="#4d90fe" opacity="0.9"/>
-<text x="{cx+50}" y="{y+4}" font-size="9" fill="{cor_label}" font-family="Barlow Condensed,sans-serif" font-weight="700">{label}</text>'''
-
-    linhas = []
-
-    # Fundo
-    linhas.append(f'<rect width="{W}" height="{H}" fill="#0d1117" rx="10"/>')
-
-    # Grade de fundo sutil
-    for yi in range(60, 470, 40):
-        linhas.append(f'<line x1="20" y1="{yi}" x2="{W-20}" y2="{yi}" stroke="#161b22" stroke-width="1"/>')
-
-    # Solo
-    linhas.append(f'<rect x="20" y="{solo_y}" width="{W-40}" height="60" fill="#1a2332" rx="4"/>')
-    linhas.append(f'<line x1="20" y1="{solo_y}" x2="{W-20}" y2="{solo_y}" stroke="#30363d" stroke-width="1.5"/>')
-    linhas.append(f'<text x="{CX}" y="{solo_y+18}" text-anchor="middle" font-size="9" fill="#444d56" font-family="Barlow,sans-serif">SOLO</text>')
-
-    # Engastamento (parte enterrada)
-    eng_px = int(POSTE_H_PX * 0.10 + (0.60/altura_m)*POSTE_H_PX)
-    linhas.append(f'<rect x="{CX-6}" y="{solo_y-eng_px}" width="12" height="{eng_px+40}" fill="#21262d" rx="2"/>')
-
-    # Poste principal
-    linhas.append(f'<defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#3a4a5c"/><stop offset="40%" stop-color="#5a7a9c"/><stop offset="100%" stop-color="#2a3a4c"/></linearGradient></defs>')
-    linhas.append(f'<rect x="{CX-6}" y="{POSTE_TOP_Y}" width="12" height="{POSTE_H_PX}" fill="url(#pg)" rx="3"/>')
-
-    # Topo do poste
-    linhas.append(f'<ellipse cx="{CX}" cy="{POSTE_TOP_Y}" rx="7" ry="3" fill="#6a8aac"/>')
-
-    # Cotas
-    linhas.append(f'<line x1="{CX-45}" y1="{POSTE_TOP_Y}" x2="{CX-45}" y2="{solo_y}" stroke="#21262d" stroke-width="1" stroke-dasharray="3,3"/>')
-    linhas.append(f'<text x="{CX-50}" y="{(POSTE_TOP_Y+solo_y)//2+4}" text-anchor="middle" font-size="9" fill="#484f58" font-family="Barlow Condensed,sans-serif" transform="rotate(-90,{CX-50},{(POSTE_TOP_Y+solo_y)//2+4})">{altura_m:.0f} m</text>')
-
-    # AF — linha de referência (0,20 do topo)
-    linhas.append(f'<line x1="{CX-35}" y1="{af_y:.0f}" x2="{CX+35}" y2="{af_y:.0f}" stroke="#f6a800" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.5"/>')
-    linhas.append(f'<text x="{CX+46}" y="{af_y+3:.0f}" font-size="8" fill="#f6a800" opacity="0.6" font-family="Barlow,sans-serif">AF={af:.2f}m</text>')
-
-    # 1º NÍVEL
-    if tem_n1:
-        linhas.append(braço_svg(CX, af_y, "1º NÍV"))
-        linhas.append(cabo_svg(CX-40, af_y, ang_ch_n1+180, tipo_n1, comprimento=85))
-        if "tangente" in tipo_saida_n1.lower() or "deriva" in tipo_saida_n1.lower():
-            linhas.append(cabo_svg(CX+40, af_y, ang_ch_n1, tipo_n1, comprimento=85))
-
-    # 2º NÍVEL
-    if tem_n2:
-        linhas.append(braço_svg(CX, n2_y, "2º NÍV", "#58a6ff"))
-        linhas.append(cabo_svg(CX-40, n2_y, ang_ch_n2+180, tipo_n2, comprimento=80))
-        if "tangente" in tipo_saida_n2.lower() or "deriva" in tipo_saida_n2.lower():
-            linhas.append(cabo_svg(CX+40, n2_y, ang_ch_n2, tipo_n2, comprimento=80))
-
-    # SECUNDÁRIA
-    if tem_sec:
-        linhas.append(braço_svg(CX, sec_y, "SEC BT", "#3fb950"))
-        linhas.append(cabo_svg(CX-40, sec_y, ang_ch_sec+180, tipo_sec, comprimento=75))
-        if "tangente" in tipo_saida_sec.lower() or "deriva" in tipo_saida_sec.lower():
-            linhas.append(cabo_svg(CX+40, sec_y, ang_ch_sec, tipo_sec, comprimento=75))
-
-    # Altura do poste (label)
-    linhas.append(f'<rect x="5" y="5" width="80" height="22" rx="4" fill="#f6a800"/>')
-    linhas.append(f'<text x="45" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="#0d1117" font-family="Barlow Condensed,sans-serif">{altura_m:.0f} m / CONCRETO</text>')
-
-    svg = f'<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-height:520px;border-radius:10px;background:#0d1117">{"".join(linhas)}</svg>'
-    return svg
-
-# ── WIDGETS ────────────────────────────────────────────────────────────────────
-
 def w_cabo_at(pfx):
     tipo = st.selectbox("Tipo de rede", [
         "Convencional (S / A / C)",
@@ -525,7 +409,7 @@ def painel_nivel(titulo, idx, alt_default, af, altura_poste, is_bt=False, fixo_a
     c4.metric("🔴 Result. transf. (daN)", f"{mag_t:.1f}",
               help=f"Fr = (AI={alt_est:.2f}/AF={af:.2f}) × {mag:.1f}")
 
-    return fx*fator, fy*fator, mag_t, nome_ch, tipo_saida, ang_ch
+    return fx*fator, fy*fator, mag_t
 
 # ── HEADER ─────────────────────────────────────────────────────────────────────
 st.markdown("""
@@ -543,16 +427,11 @@ st.markdown("""
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ── LAYOUT PRINCIPAL: esquerda=formulários, direita=poste ─────────────────────
-col_form, col_viz = st.columns([3, 2], gap="large")
+col_form = st
 
-# Variáveis de visualização
-viz_tipo_n1 = viz_tipo_n2 = viz_tipo_sec = "Conv"
-viz_ang_n1 = viz_ang_n2 = viz_ang_sec = 0
-viz_saida_n1 = viz_saida_n2 = viz_saida_sec = "Fim de linha"
-fx1=fy1=mag1=fx2=fy2=mag2=fx_s=fy_s=mag_s=0.0
 tem_n1=tem_n2=tem_sec=False
 
-with col_form:
+if True:  # col_form
     # ── IDENTIFICAÇÃO ──────────────────────────────────────────────────────
     with st.expander("📋  Identificação do Pedido", expanded=False):
         c1,c2,c3,c4 = st.columns(4)
@@ -583,7 +462,7 @@ with col_form:
     tem_n1 = st.checkbox("Possui 1º nível de rede primária", key="cb_n1")
     if tem_n1:
         with st.container(border=True):
-            fx1,fy1,mag1,viz_tipo_n1,viz_saida_n1,viz_ang_n1 = painel_nivel("1º Nível","n1",af_poste,af_poste,altura_poste,fixo_alt=True)
+            fx1,fy1,mag1 = painel_nivel("1º Nível","n1",af_poste,af_poste,altura_poste,fixo_alt=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -592,7 +471,7 @@ with col_form:
     tem_n2 = st.checkbox("Possui 2º nível de rede primária", key="cb_n2")
     if tem_n2:
         with st.container(border=True):
-            fx2,fy2,mag2,viz_tipo_n2,viz_saida_n2,viz_ang_n2 = painel_nivel("2º Nível","n2",max(0.0,af_poste-1.0),af_poste,altura_poste,fixo_alt=True)
+            fx2,fy2,mag2 = painel_nivel("2º Nível","n2",max(0.0,af_poste-1.0),af_poste,altura_poste,fixo_alt=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -601,7 +480,7 @@ with col_form:
     tem_sec = st.checkbox("Possui rede secundária (BT)", key="cb_sec")
     if tem_sec:
         with st.container(border=True):
-            fx_s,fy_s,mag_s,viz_tipo_sec,viz_saida_sec,viz_ang_sec = painel_nivel("Secundária BT","sec",max(0.0,alt_util-3.0),af_poste,altura_poste,is_bt=True)
+            fx_s,fy_s,mag_s = painel_nivel("Secundária BT","sec",max(0.0,alt_util-3.0),af_poste,altura_poste,is_bt=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -649,49 +528,3 @@ with col_form:
 
 **Tangente mesmo cabo:** R = 0 — forças opostas iguais cancelam.
 """)
-
-# ── COLUNA DIREITA — VISUALIZAÇÃO DO POSTE ────────────────────────────────────
-with col_viz:
-    st.markdown('<div class="panel-title">VISUALIZAÇÃO DO POSTE</div>', unsafe_allow_html=True)
-    svg = desenho_poste(
-        altura_m   = altura_poste,
-        tem_n1     = tem_n1,    tipo_n1  = viz_tipo_n1,
-        tem_n2     = tem_n2,    tipo_n2  = viz_tipo_n2,
-        tem_sec    = tem_sec,   tipo_sec = viz_tipo_sec,
-        af         = af_poste,
-        ang_ch_n1  = viz_ang_n1,  tipo_saida_n1  = viz_saida_n1,
-        ang_ch_n2  = viz_ang_n2,  tipo_saida_n2  = viz_saida_n2,
-        ang_ch_sec = viz_ang_sec, tipo_saida_sec = viz_saida_sec,
-    )
-    st.markdown(svg, unsafe_allow_html=True)
-
-    # Legenda
-    st.markdown("""
-<div style="margin-top:12px;background:#161b22;border-radius:8px;padding:12px 14px">
-  <div style="font-size:0.65rem;color:#8b949e;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;font-family:'Barlow Condensed',sans-serif">LEGENDA DE CABOS</div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:0.72rem">
-    <span><span style="color:#a8b4bf">━</span> Convencional</span>
-    <span><span style="color:#4fc3f7">━</span> Protegida</span>
-    <span><span style="color:#81c784">━</span> Compacta</span>
-    <span><span style="color:#ffb74d">━</span> Pré-Reunido (PA)</span>
-    <span><span style="color:#ce93d8">━</span> Pré-Reunido (PB)</span>
-    <span><span style="color:#ef9a9a">━</span> CAZ/CAW</span>
-    <span><span style="color:#4d90fe">●</span> Isolador</span>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    # Tabela resumo compacta
-    if tem_n1 or tem_n2 or tem_sec:
-        st.markdown("""<div style="margin-top:12px;background:#161b22;border-radius:8px;padding:12px 14px">
-<div style="font-size:0.65rem;color:#8b949e;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;font-family:'Barlow Condensed',sans-serif">RESUMO DAS ESTRUTURAS</div>""", unsafe_allow_html=True)
-        rows = []
-        if tem_n1:  rows.append(("1º Nível", f"{af_poste:.2f} m",  f"{mag1:.1f} daN"))
-        if tem_n2:  rows.append(("2º Nível", f"{af_poste-1.0:.2f} m", f"{mag2:.1f} daN"))
-        if tem_sec: rows.append(("Secundária",f"{alt_util-3.0:.2f} m",f"{mag_s:.1f} daN"))
-        for r in rows:
-            st.markdown(f"""<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #21262d;font-size:0.78rem">
-<span style="color:#8b949e">{r[0]}</span><span>{r[1]}</span><span style="color:#f6a800;font-weight:600">{r[2]}</span></div>""", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-st.markdown('<div style="margin-top:24px;text-align:center;font-size:0.7rem;color:#484f58">Cálculos conforme DIS-NOR-012 Rev.08 e DIS-NOR-014 Rev.2024 — Elektro · Validar com engenheiro responsável</div>', unsafe_allow_html=True)

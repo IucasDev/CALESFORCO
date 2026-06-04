@@ -181,38 +181,38 @@ ALTURA_FINAL = {9:7.4, 10:8.3, 11:9.2, 12:10.1, 14:11.9, 16:13.7}
 # Usados em rede primária convencional nua e rede secundária nua
 TRACAO_CONV = {
     # CA — Alumínio SEM alma de aço (Tabela 14)
-    "4 CA":    60,
-    "2 CA":    86,
-    "2/0 CA":  173,
-    "4/0 CA":  274,
-    "336,4 CA":436,
-    # CAA — Alumínio COM alma de aço (Tabela 14)
-    "4 CAA":     75,
-    "1/0 CAA":  173,
-    "4/0 CAA":  347,
-    "336,4 CAA":551,
-    # Cobre nu (Tabela 14)
-    "35mm² Cu":  244,
-    "70mm² Cu":  477,
-    "95mm² Cu":  663,
-    "120mm² Cu": 892,
-    # Alumínio liga CAL (Tabela 14)
-    "77,47 MCM CAL":  72,
-    "155,4 MCM CAL":  144,
-    "246,9 MCM CAL":  227,
-    "465,4 MCM CAL":  427,
+    "A04":    60,
+    "A02":    86,
+    "A20":  173,
+    "A40":  274,
+    "A336":436,
+    "A477":619,
+    "C02":  171,
+    "C04":  107,
+    "C06":  60,
+    "C120": 568,
+    "C20":  342,
+    "C25":  106,
+    "C35":  155,
+    "C40":  544,
+    "C70":  296,
+    "S04":  219,
+    "S02":  347,
+    "S20":  696,
+    "S40":  1108,
+    "S336": 1388,
+    "S477": 2497,
 }
 FAMILIAS_CONV = {
-    "CA — Alum. s/ alma de aço": ["4 CA","2 CA","2/0 CA","4/0 CA","336,4 CA"],
-    "CAA — Alum. c/ alma de aço":["4 CAA","1/0 CAA","4/0 CAA","336,4 CAA"],
-    "Cu — Cobre nu":             ["35mm² Cu","70mm² Cu","95mm² Cu","120mm² Cu"],
-    "CAL — Alumínio liga":       ["77,47 MCM CAL","155,4 MCM CAL","246,9 MCM CAL","465,4 MCM CAL"],
+    "CA — Alum. s/ alma de aço": ["A04","A02","A20","A40","A336","A477"],
+    "CAA — Alum. c/ alma de aço":["C02","C04","C06","C120","C20","C25","C35","C40","C70"],
+    "Cu — Cobre nu":             ["S04","S02","S20","S40","S336","S477"],
 }
 CABOS_BT = {
-    "CA — Alumínio": ["4 CA","2 CA","2/0 CA","4/0 CA","336,4 CA"],
-    "Cu — Cobre":    ["35mm² Cu","70mm² Cu","95mm² Cu","120mm² Cu"],
+    "CA — Alumínio": ["A04","A02","A20","A40","A336","A477"],
+    "Cu — Cobre":    ["S04","S02","S20","S40","S336","S477"],
 }
-TRACAO_PA = {"PA50":311,"PA70":375,"PA95":469,"PA120":527,"PA185":683,"PA240":795}
+TRACAO_PA = {"PA50":311,"PA70":375,"PA95":469,"PA120":527,"PA185":683,"PA240":796}
 TRACAO_PB = {
     "PB35":{5:4,10:14,15:32,20:56,25:88,30:127,35:172,40:225},
     "PB50":{5:6,10:24,15:51,20:91,25:142,30:204,35:278,40:363},
@@ -226,14 +226,21 @@ TRACAO_CAZ = {
     "CAW 3,26":  {50:244,100:273,150:276,200:296,300:334,400:368,500:398,600:426},
     "CAW 3x2,59":{50:438,100:492,150:495,200:524,300:588,400:645,500:696,600:741},
     "CAA 04":    {50:217,100:269,150:313,200:324,300:324,400:324,500:324,600:324},
+    "A50P":      {10:461,15:469,20:477,25:486,30:495,35:503,40:516,45:537,50:555,55:571,60:586,65:600,70:612,75:623,80:632},
+    "A70P":      {10:468,15:483,20:498,25:514,30:530,35:544,40:558,45:582,50:604,55:624,60:641,65:657,70:672,75:685,80:697},
+    "A120P":     {10:489,15:521,20:553,25:584,30:614,35:641,40:665,45:692,50:722,55:749,60:774,65:797,70:818,75:837,80:854},
+    "A180P":     {10:514,15:562,20:610,25:655,30:697,35:735,40:770,45:802,50:837,55:872,60:903,65:933,70:960,75:985,80:1008},
 }
 VOS_CAZ = [50,100,150,200,300,400,500,600]
 TRACAO_PROT = {
     "URBANO15KVA50P":240,"URBANO15KVA70P":321,"URBANO15KVA120P":510,
+    "URBANO15KVA185P":400,"URBANO15KVA240P":720,
     "RURAL15KVA50P":334,"RURAL15KVA70P":407,"RURAL15KVA120P":584,
+    "RURAL15KVA185P":400,"RURAL15KVA240P":1366,
     "URBANO36,2KVA70P":426,"URBANO36,2KVA120P":581,
+    "URBANO36,2KVA185P":822,
     "RURAL36,2KVA70P":524,"RURAL36,2KVA120P":779,
-    "URBANO15KVA185P":400,"RURAL15KVA185P":400,
+    "RURAL36,2KVA185P":1584,
 }
 COMPACTA_VAO = {
     "URBANO15KVA35P":{15:342,20:349,25:355,30:365,35:386,40:405,45:422,50:438,55:451,60:464},
@@ -244,12 +251,17 @@ COMPACTA_VAO = {
     "RURAL15KVA70P":{15:435,20:501,25:561,30:616,35:665,40:711,45:754,50:793,55:830,60:864,65:895,70:925,75:953,80:978,85:1003,90:1025,95:1047,100:1067},
     "RURAL15KVA185P":{15:521,20:608,25:685,30:756,35:822,40:883,45:939,50:992,55:1041,60:1088,65:1131,70:1172,75:1211,80:1248,85:1282,90:1315,95:1345,100:1375},
     "RURAL15KVA240P":{15:559,20:654,25:740,30:818,35:890,40:958,45:1020,50:1079,55:1134,60:1186,65:1235,70:1281,75:1324,80:1366,85:1405,90:1442,95:1477,100:1510},
-    "URBANO36,2KVA70P":{15:366,20:383,25:400,30:417,35:444,40:468,45:490,50:511,55:529,60:546},
+    "URBANO36,2KVA70P":{15:433,20:475,25:514,30:557,35:600,40:640,45:676,50:710,55:741,60:770},
     "URBANO36,2KVA185P":{15:521,20:588,25:650,30:707,35:767,40:822,45:874,50:922,55:966,60:1008},
     "RURAL36,2KVA70P":{15:542,20:633,25:715,30:790,35:859,40:923,45:983,50:1039,55:1092,60:1141,65:1187,70:1231,75:1273,80:1312,85:1349,90:1384,95:1417,100:1448},
     "RURAL36,2KVA185P":{15:630,20:741,25:840,30:932,35:1017,40:1096,45:1170,50:1239,55:1305,60:1367,65:1425,70:1481,75:1534,80:1584,85:1631,90:1677,95:1720,100:1761},
 }
 COMPACTA_FIXO = {
+    "URBANO15KVA50P":240,"URBANO15KVA70P":321,"URBANO15KVA120P":510,
+    "RURAL15KVA50P":334,"RURAL15KVA70P":407,"RURAL15KVA120P":584,
+    "URBANO36,2KVA70P":426,"URBANO36,2KVA120P":581,
+    "RURAL36,2KVA70P":524,"RURAL36,2KVA120P":779,
+    "URBANO15KVA185P":400,"RURAL15KVA185P":400,
     "URBANO15KVA35P":405,"URBANO15KVA50P":516,"URBANO15KVA70P":468,
     "URBANO15KVA120P":665,"URBANO15KVA185P":643,"URBANO15KVA240P":720,
     "RURAL15KVA35P":872,"RURAL15KVA50P":1035,"RURAL15KVA70P":978,
@@ -314,7 +326,7 @@ def w_cabo_at(pfx):
         c1,c2,c3 = st.columns(3)
         loc  = c1.selectbox("Local", ["URBANO","RURAL"], key=f"{pfx}_loc")
         tens = c2.selectbox("Tensão", ["15KV","36,2KV"], key=f"{pfx}_tens")
-        cabo = c3.selectbox("Cabo", ["A50P","A70P","A120P","A185P"], key=f"{pfx}_cabo")
+        cabo = c3.selectbox("Cabo", ["A50P","A70P","A120P","A185P","A240P"], key=f"{pfx}_cabo")
         t    = float(TRACAO_PROT.get(f"{loc}{tens}{cabo}",0))
 
     elif tipo == "Compacta":
@@ -372,158 +384,111 @@ def w_cabo_bt(pfx):
     return float(t), nome
 
 def painel_nivel(titulo, idx, alt_default, af, altura_poste, is_bt=False, fixo_alt=False):
+    st.markdown(f"""
+<div class="section-card {'active' if alt_default>0 else ''}">
+  <p class="panel-title">{titulo}</p>
+""", unsafe_allow_html=True)
+
     if fixo_alt:
         alt_est = float(alt_default)
-        st.markdown(f'<div style="background:#1a2d1a;border:1px solid #3fb950;border-radius:6px;padding:8px 12px;font-size:0.8rem;color:#3fb950;margin-bottom:8px">📏 AI = <strong>{alt_est:.2f} m</strong> — fixo conforme norma Elektro</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="background:#1a2d1a;border:1px solid #3fb950;border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:0.8rem">Altura estimada: <b>{alt_est:.2f} m</b></div>', unsafe_allow_html=True)
     else:
-        alt_est = st.number_input("Altura da estrutura — AI (m)", 0.0, float(altura_poste), value=float(alt_default), step=0.1, key=f"{idx}_alt")
+        alt_est = st.number_input("Altura estimada (m)", 0.0, float(altura_poste), alt_default, key=f"{idx}_alt")
 
-    col_ch, col_sa = st.columns(2)
-    with col_ch:
-        st.markdown('<div class="panel-title">↙ CHEGADA</div>', unsafe_allow_html=True)
-        if is_bt:
-            t_ch, nome_ch = w_cabo_bt(f"{idx}_ch")
-        else:
-            t_ch, nome_ch = w_cabo_at(f"{idx}_ch")
-        ang_ch = ang_slider("Ângulo chegada (°)", 0, f"{idx}_ang_ch")
-        st.caption("0°=L · 90°=N · 180°=O · 270°=S")
+    c1,c2 = st.columns(2)
+    ang = ang_slider("Ângulo (α)", 0, key=f"{idx}_ang")
+    if is_bt:
+        tracao, nome_tipo = w_cabo_bt(idx)
+    else:
+        tracao, nome_tipo = w_cabo_at(idx)
 
-    with col_sa:
-        st.markdown('<div class="panel-title">↗ SAÍDA</div>', unsafe_allow_html=True)
-        tipo_saida = st.radio("O cabo...", [
-            "Fim de linha",
-            "Tangente — mesmo cabo",
-            "Tangente — cabo diferente",
-            "Deriva em outro ângulo",
-        ], key=f"{idx}_saida")
-        t_sa, ang_sa = 0.0, 0
+    # ── CÁLCULO ───────────────────────────────────────────────────────────────────
+    # Fr = (AI / AF) × TI
+    # AI = altura estimada
+    # AF = altura transferida a 0,10 m do topo (ALTURA_FINAL)
+    # TI = tração inicial
+    
+    if af == 0:
+        st.error("Erro: Altura final (AF) é zero. Verifique a altura do poste.")
+        return 0.0, 0.0, 0.0
 
-        if tipo_saida == "Fim de linha":
-            st.info("Só tração de chegada atua.")
-        elif tipo_saida == "Tangente — mesmo cabo":
-            t_sa, _ = t_ch, None
-            ang_sa  = (ang_ch + 180) % 360
-            st.caption(f"Mesmo cabo · saída {ang_sa}°")
-            st.info("Forças opostas iguais → **resultante = 0** ✓")
-        elif tipo_saida == "Tangente — cabo diferente":
-            t_sa, _ = (w_cabo_bt(f"{idx}_sa") if is_bt else w_cabo_at(f"{idx}_sa"))
-            ang_sa  = (ang_ch + 180) % 360
-            st.caption(f"Tangente · cabos diferentes → resultante = |T₁−T₂|")
-        else:
-            t_sa, _ = (w_cabo_bt(f"{idx}_sa") if is_bt else w_cabo_at(f"{idx}_sa"))
-            ang_sa  = ang_slider("Ângulo saída (°)", 90, f"{idx}_ang_sa")
+    fr = (alt_est / af) * tracao
 
-    fx = t_ch*math.cos(math.radians(ang_ch))
-    fy = t_ch*math.sin(math.radians(ang_ch))
-    if tipo_saida != "Fim de linha":
-        fx += t_sa*math.cos(math.radians(ang_sa))
-        fy += t_sa*math.sin(math.radians(ang_sa))
-    mag   = math.sqrt(fx**2+fy**2)
-    fator = alt_est/af if af>0 else 1.0
-    mag_t = mag*fator
+    st.caption(f"⚡ Força resultante: **{fr:.0f} daN**")
 
-    st.markdown("---")
-    c1,c2,c3,c4 = st.columns(4)
-    c1.metric("T. chegada (daN)", f"{t_ch:.0f}")
-    c2.metric("T. saída (daN)",   f"{t_sa:.0f}")
-    c3.metric("Deflexão α",       f"{min(abs(ang_sa-ang_ch)%360,360-abs(ang_sa-ang_ch)%360):.0f}°")
-    c4.metric("🔴 Result. transf. (daN)", f"{mag_t:.1f}",
-              help=f"Fr = (AI={alt_est:.2f}/AF={af:.2f}) × {mag:.1f}")
+    # Componentes retangulares
+    fx = fr * math.cos(math.radians(ang))
+    fy = fr * math.sin(math.radians(ang))
 
-    return fx*fator, fy*fator, mag_t
+    st.markdown("</div>", unsafe_allow_html=True)
+    return fx, fy, fr
 
-# ── HEADER ─────────────────────────────────────────────────────────────────────
+
+# ── INTERFACE ─────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="app-header">
+  <img src="https://www.elektro.com.br/Static/img/logo.png" width="40" />
   <div>
-    <div style="font-size:2rem;line-height:1">⚡</div>
+    <h1>Esforços Mecânicos</h1>
+    <p class="sub">Cálculo de esforços em postes conforme DIS-NOR-012 e DIS-NOR-014 <span class="badge">v1.0</span></p>
   </div>
-  <div>
-    <h1>Cálculo de Esforços Mecânicos</h1>
-    <div class="sub">DIS-NOR-012 Rev.08 · DIS-NOR-014 Rev.2024 · Elektro</div>
-  </div>
-  <div style="margin-left:auto"><span class="badge">REV 2024</span></div>
 </div>
 """, unsafe_allow_html=True)
+
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ── LAYOUT PRINCIPAL: esquerda=formulários, direita=poste ─────────────────────
-col_form = st
+c1,c2 = st.columns(2)
+altura_poste = c1.selectbox("Altura do poste (m)", list(ALTURA_FINAL.keys()), index=2)
+classe_poste = c2.selectbox("Classe do poste (daN)", [150,200,300,400,600,1000,1500,2000,3000,4000], index=3)
 
-tem_n1=tem_n2=tem_sec=False
-fx1=fy1=mag1=0.0
-fx2=fy2=mag2=0.0
-fx_s=fy_s=mag_s=0.0
+af_poste = ALTURA_FINAL.get(altura_poste, 0.0)
 
-if True:  # col_form
-    # ── IDENTIFICAÇÃO ──────────────────────────────────────────────────────
-    with st.expander("📋  Identificação do Pedido", expanded=False):
-        c1,c2,c3,c4 = st.columns(4)
-        c1.text_input("Nº Pedido"); c2.text_input("Nº OS")
-        c3.text_input("Data");      c4.text_input("Local / OI-ODI")
+st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── POSTE ──────────────────────────────────────────────────────────────
-    st.markdown('<div class="panel-title">DADOS DO POSTE</div>', unsafe_allow_html=True)
-    with st.container(border=False):
-        c1,c2 = st.columns(2)
-        ALTURAS=[9,10,11,12,14,16]; CLASSES=[200,300,400,600,1000,1500]
-        altura_poste = float(c1.selectbox("Altura (m)", ALTURAS, index=ALTURAS.index(12)))
-        classe_poste = c2.selectbox("Classe (daN)", CLASSES, index=CLASSES.index(600))
-        af_poste  = ALTURA_FINAL[int(altura_poste)]
-        _eng      = round(altura_poste*0.10+0.60, 2)
-        alt_util  = round(altura_poste-0.20-_eng, 2)
-        st.markdown(f"""
-<div style="background:#161b22;border:1px solid #21262d;border-radius:6px;padding:10px 14px;font-size:0.8rem;display:flex;gap:24px;margin-top:4px">
-  <span style="color:#8b949e">Engastamento: <strong style="color:#e6edf3">{_eng:.2f} m</strong></span>
-  <span style="color:#8b949e">Altura útil: <strong style="color:#e6edf3">{alt_util:.2f} m</strong></span>
-  <span style="color:#f6a800">AF 0,10m topo: <strong>{af_poste:.2f} m</strong></span>
-</div>""", unsafe_allow_html=True)
+# ── PRIMÁRIA ──────────────────────────────────────────────────────────────────
+st.markdown('<div class="panel-title">REDE PRIMÁRIA</div>', unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+# 1º Nível
+fx1,fy1,mag1 = painel_nivel("1º Nível","n1",altura_poste-1.0,af_poste,altura_poste,fixo_alt=True)
 
-    # ── 1º NÍVEL ───────────────────────────────────────────────────────────
-    st.markdown('<div class="panel-title">1º NÍVEL — REDE PRIMÁRIA</div>', unsafe_allow_html=True)
-    tem_n1 = st.checkbox("Possui 1º nível de rede primária", key="cb_n1")
-    if tem_n1:
-        with st.container(border=True):
-            fx1,fy1,mag1 = painel_nivel("1º Nível","n1",af_poste,af_poste,altura_poste,fixo_alt=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+# 2º Nível
+tem_n2 = st.checkbox("Possui 2º nível de rede primária", key="cb_n2")
+if tem_n2:
+    fx2,fy2,mag2 = painel_nivel("2º Nível","n2",altura_poste-2.0,af_poste,altura_poste)
+else:
+    fx2,fy2,mag2 = 0.0,0.0,0.0
 
-    # ── 2º NÍVEL ───────────────────────────────────────────────────────────
-    st.markdown('<div class="panel-title">2º NÍVEL — REDE PRIMÁRIA (OPCIONAL)</div>', unsafe_allow_html=True)
-    tem_n2 = st.checkbox("Possui 2º nível de rede primária", key="cb_n2")
-    if tem_n2:
-        with st.container(border=True):
-            fx2,fy2,mag2 = painel_nivel("2º Nível","n2",max(0.0,af_poste-1.0),af_poste,altura_poste,fixo_alt=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+# ── SECUNDÁRIA ─────────────────────────────────────────────────────────
+st.markdown('<div class="panel-title">REDE SECUNDÁRIA — BT</div>', unsafe_allow_html=True)
+tem_sec = st.checkbox("Possui rede secundária (BT)", key="cb_sec")
+if tem_sec:
+    with st.container(border=True):
+        fx_s,fy_s,mag_s = painel_nivel("Secundária BT","sec",max(0.0,alt_util-3.0),af_poste,altura_poste,is_bt=True)
+else:
+    fx_s,fy_s,mag_s = 0.0,0.0,0.0
 
-    # ── SECUNDÁRIA ─────────────────────────────────────────────────────────
-    st.markdown('<div class="panel-title">REDE SECUNDÁRIA — BT</div>', unsafe_allow_html=True)
-    tem_sec = st.checkbox("Possui rede secundária (BT)", key="cb_sec")
-    if tem_sec:
-        with st.container(border=True):
-            fx_s,fy_s,mag_s = painel_nivel("Secundária BT","sec",max(0.0,alt_util-3.0),af_poste,altura_poste,is_bt=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+# ── RESULTADO ──────────────────────────────────────────────────────────
+st.markdown('<div class="panel-title">RESULTADO FINAL</div>', unsafe_allow_html=True)
+rx  = fx1+fx2+fx_s
+ry  = fy1+fy2+fy_s
+mag = math.sqrt(rx**2+ry**2)
+ang = math.degrees(math.atan2(ry,rx))%360
+margem = classe_poste - mag
 
-    # ── RESULTADO ──────────────────────────────────────────────────────────
-    st.markdown('<div class="panel-title">RESULTADO FINAL</div>', unsafe_allow_html=True)
-    rx  = fx1+fx2+fx_s
-    ry  = fy1+fy2+fy_s
-    mag = math.sqrt(rx**2+ry**2)
-    ang = math.degrees(math.atan2(ry,rx))%360
-    margem = classe_poste - mag
+c1,c2,c3 = st.columns(3)
+c1.metric("1º Nível (daN)",  f"{mag1:.1f}")
+c2.metric("2º Nível (daN)",  f"{mag2:.1f}" if tem_n2  else "—")
+c3.metric("Secundária (daN)",f"{mag_s:.1f}" if tem_sec else "—")
 
-    c1,c2,c3 = st.columns(3)
-    c1.metric("1º Nível (daN)",  f"{mag1:.1f}")
-    c2.metric("2º Nível (daN)",  f"{mag2:.1f}" if tem_n2  else "—")
-    c3.metric("Secundária (daN)",f"{mag_s:.1f}" if tem_sec else "—")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    cor_mag = "ok" if margem>=0 else "err"
-    st.markdown(f"""
+st.markdown("<br>", unsafe_allow_html=True)
+cor_mag = "ok" if margem>=0 else "err"
+st.markdown(f"""
 <div style="display:flex;gap:12px;margin-bottom:8px">
   <div style="flex:2;background:#161b22;border:1px solid {'#3fb950' if margem>=0 else '#f85149'};border-radius:10px;padding:16px;text-align:center">
     <div style="font-size:0.68rem;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Resultante Total</div>

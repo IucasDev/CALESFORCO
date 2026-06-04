@@ -442,6 +442,7 @@ altura_poste = c1.selectbox("Altura do poste (m)", list(ALTURA_FINAL.keys()), in
 classe_poste = c2.selectbox("Classe do poste (daN)", [150,200,300,400,600,1000,1500,2000,3000,4000], index=3)
 
 af_poste = ALTURA_FINAL.get(altura_poste, 0.0)
+alt_util = af_poste # Definindo alt_util como a altura útil (AF) para cálculos secundários
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -503,14 +504,15 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-    if margem >= 0:
-        st.success(f"✅ Poste {int(altura_poste)} m / {classe_poste} daN suporta com margem de **{margem:.1f} daN**.")
-    else:
-        prox = next((c for c in CLASSES if c>=mag), None)
-        st.error(f"🔴 Excede em **{abs(margem):.1f} daN**." + (f" Use classe **{prox} daN**." if prox else ""))
+if margem >= 0:
+    st.success(f"✅ Poste {int(altura_poste)} m / {classe_poste} daN suporta com margem de **{margem:.1f} daN**.")
+else:
+    CLASSES = [150,200,300,400,600,1000,1500,2000,3000,4000]
+    prox = next((c for c in CLASSES if c>=mag), None)
+    st.error(f"🔴 Excede em **{abs(margem):.1f} daN**." + (f" Use classe **{prox} daN**." if prox else ""))
 
-    with st.expander("📐 Fórmulas (DIS-NOR-012 / DIS-NOR-014)"):
-        st.markdown(f"""
+with st.expander("📐 Fórmulas (DIS-NOR-012 / DIS-NOR-014)"):
+    st.markdown(f"""
 **Transferência (6.13.4):** Fr = (AI / AF) × TI — AF = altura − 0,10m do topo → poste {int(altura_poste)}m = **{af_poste:.2f} m**
 
 **Resultante (6.13.6):** R = √(F₁² + F₂² + 2·F₁·F₂·cos β),  β = 180°−α
